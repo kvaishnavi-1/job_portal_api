@@ -28,6 +28,9 @@ namespace JobPortalAPI.Controllers
             if (existingUser != null)
                 return BadRequest(new { message = "Username is already taken. Please choose a different one." });
 
+            if (user.Role != "Employer" && user.Role != "Candidate")
+                return BadRequest(new { message = "Invalid role. Allowed roles: Employer, Candidate." });
+
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
             _context.Users.Add(user);
             _context.SaveChanges();
