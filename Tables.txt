@@ -1,0 +1,43 @@
+USE [JobPortal]
+GO
+
+CREATE TABLE [dbo].[Users](
+    [Id] INT IDENTITY(1,1) NOT NULL,
+    [Email] NVARCHAR(255) NOT NULL UNIQUE,
+    [Username] NVARCHAR(50) NOT NULL,
+    [HashedPassword] NVARCHAR(255) NOT NULL,
+    [Salt] NVARCHAR(255) NOT NULL,
+    [Role] NVARCHAR(20) NOT NULL,
+    [CreatedAt] DATETIME NOT NULL DEFAULT GETUTCDATE(),
+    [ResetToken] NVARCHAR(512) NULL,
+    [ResetTokenExpiry] DATETIME NULL,
+    CONSTRAINT PK_Users PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT UQ_Users_Username UNIQUE ([Username]),
+);
+GO
+
+CREATE TABLE [dbo].[Jobs] (
+    [Id] INT IDENTITY(1,1) NOT NULL,
+    [EmployerId] INT NOT NULL,
+    [Title] NVARCHAR(100) NOT NULL,
+    [Company] NVARCHAR(100) NOT NULL,
+    [Location] NVARCHAR(100) NOT NULL,
+    [Description] NVARCHAR(MAX) NOT NULL,
+    [Type] NVARCHAR(20) NOT NULL,
+    [PostedAt] DATETIME NOT NULL DEFAULT GETUTCDATE(),
+    [ApplicationDeadline] DATETIME NOT NULL,
+    CONSTRAINT PK_Jobs PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT FK_Jobs_Employer FOREIGN KEY ([EmployerId]) REFERENCES [dbo].[Users]([Id]) ON DELETE CASCADE
+);
+GO
+
+CREATE TABLE [dbo].[Applications] (
+    [Id] INT IDENTITY(1,1) PRIMARY KEY,
+    [JobId] INT NOT NULL,
+    [CandidateId] INT NOT NULL,
+    [Status] VARCHAR(20) NOT NULL,
+    CONSTRAINT FK_Applications_Job FOREIGN KEY ([JobId]) REFERENCES [dbo].[Jobs]([Id]) ON DELETE NO ACTION,
+    CONSTRAINT FK_Applications_Candidate FOREIGN KEY ([CandidateId]) REFERENCES [dbo].[Users]([Id]) ON DELETE NO ACTION
+);
+GO
+
